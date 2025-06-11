@@ -10,7 +10,7 @@
     "scripts": {
         "start": "node build/src/server.js",
         "dev": "tsx watch src/server.ts",
-        "build": "tsc && cp -r public build/public",
+        "build": "tsc && cpx \"public/**/*\" build/public",
         "lint:editor": "editorconfig-checker",
         "lint:fs": "ls-lint",
         "lint:type": "npx tsc --noEmit",
@@ -40,6 +40,7 @@
         "@types/node": "22.15.29",
         "@typescript-eslint/eslint-plugin": "8.33.0",
         "@typescript-eslint/parser": "8.33.0",
+        "cpx": "^1.5.0",
         "editorconfig-checker": "6.0.1",
         "eslint": "9.28.0",
         "eslint-import-resolver-typescript": "4.4.2",
