@@ -10,7 +10,7 @@
     "scripts": {
         "start": "node build/src/server.js",
         "dev": "tsx watch src/server.ts",
-        "build": "tsc",
+        "build": "tsc && cp -r public build/public",
         "lint:editor": "editorconfig-checker",
         "lint:fs": "ls-lint",
         "lint:type": "npx tsc --noEmit",
