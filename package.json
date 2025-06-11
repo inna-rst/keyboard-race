@@ -8,6 +8,7 @@
         "npm": "10.x.x"
     },
     "scripts": {
+        "start": "node build/public/server.js",
         "dev": "tsx watch src/server.ts",
         "build": "tsc",
         "lint:editor": "editorconfig-checker",
@@ -56,7 +57,6 @@
         "tsx": "4.19.4",
         "typescript": "5.8.3"
     },
-    "start": "node build/public/server.js",
     "simple-git-hooks": {
         "pre-commit": "npm run lint:type && npm run git:hook:precommit"
     }
