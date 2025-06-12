@@ -39,6 +39,25 @@
     font-size: large;
 }
 
+#text-container .correct {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#text-container .incorrect {
+    background-color: #f44336;
+    color: white;
+}
+
+#text-container .current {
+    background-color: #2196F3;
+    color: white;
+    border-bottom: 3px solid #fff;
+    text-decoration: none;
+}
+
+
+
 #game-timer {
     position: absolute;
     bottom: 15px;

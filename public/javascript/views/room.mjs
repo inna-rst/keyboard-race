@@ -40,10 +40,23 @@ const appendRoomElement = ({ name, numberOfUsers, onJoin = () => {} }) => {
 };
 
 const updateNumberOfUsersInRoom = ({ name, numberOfUsers }) => {
-    const roomConnectedUsersElement = document.querySelector(`.connected-users[data-room-name='${name}']`);
-    roomConnectedUsersElement.innerText = getNumberOfUsersString(numberOfUsers);
+    console.log(`Updating user count for room "${name}" to ${numberOfUsers}`);
+    
+    const escapedName = name.replace(/'/g, "\\'");
+    const roomConnectedUsersElement = document.querySelector(`.connected-users[data-room-name='${escapedName}']`);
+    
+    if (!roomConnectedUsersElement) {
+        console.warn(`Cannot update user count: room element "${name}" not found in DOM`);
+        return;
+    }
+
+    const numberOfUsersString = getNumberOfUsersString(numberOfUsers);
+    roomConnectedUsersElement.innerText = numberOfUsersString;
     roomConnectedUsersElement.dataset.roomNumberOfUsers = numberOfUsers;
+    
+    console.log(`Successfully updated user count for room "${name}"`);
 };
+
 
 const getNumberOfUsersString = (numberOfUsers) => `${numberOfUsers} connected`;
 

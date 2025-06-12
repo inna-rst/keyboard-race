@@ -184,9 +184,22 @@ function showRoomsPage() {
     addClass(gamePage, 'display-none');
     currentRoom = null;
     gameState = 'waiting';
+    
+    userInput = '';
+    gameText = '';
+    
+    if (gameTimer) {
+        clearInterval(gameTimer);
+        gameTimer = null;
+    }
+    if (countdownTimer) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+    }
 
     socket.emit('get_rooms_list');
 }
+
 
 function showGamePage(roomName) {
     addClass(roomsPage, 'display-none');
@@ -209,26 +222,36 @@ socket.on('username_taken', (message) => {
 socket.on('rooms_list', (rooms) => {
     console.log('Received rooms list:', rooms);
 
-    if (currentRoom === null) {
+    if (currentRoom === null && !gamePage.classList.contains('display-none') === false) {
         updateRoomsList(rooms);
     }
+
 });
 
 
 socket.on('room_created', (room) => {
     console.log('Room created:', room);
 
-    if (currentRoom === null) {
-        appendRoomElement({
-            name: room.name,
-            numberOfUsers: room.numberOfUsers,
-            onJoin: () => {
-                console.log('Joining room:', room.name);
-                socket.emit('join_room', room.name);
+    if (currentRoom === null && room && room.name) {
+        const existingRoom = document.querySelector(`[data-room-name="${room.name}"]`);
+        if (!existingRoom) {
+            appendRoomElement({
+                name: room.name,
+                numberOfUsers: room.numberOfUsers || 0,
+                onJoin: () => {
+                    console.log('Joining room:', room.name);
+                    socket.emit('join_room', room.name);
+                }
+            });
+            
+            const noRoomsMessage = document.querySelector('.no-rooms-message');
+            if (noRoomsMessage) {
+                noRoomsMessage.remove();
             }
-        });
+        }
     }
 });
+
 
 socket.on('room_creation_error', (message) => {
     console.error('Room creation error:', message);
@@ -288,13 +311,21 @@ socket.on('user_ready_changed', (data) => {
 
 socket.on('room_users_updated', (data) => {
     console.log('Room users updated:', data);
-    updateNumberOfUsersInRoom(data);
+    
+    if (currentRoom === null && !roomsPage.classList.contains('display-none')) {
+        updateNumberOfUsersInRoom(data);
+    }
 });
+
 
 socket.on('room_removed', (roomName) => {
     console.log('Room removed:', roomName);
-    removeRoomElement(roomName);
+    
+    if (currentRoom === null && !roomsPage.classList.contains('display-none')) {
+        removeRoomElement(roomName);
+    }
 });
+
 
 socket.on('countdown_started', (data) => {
     console.log('Countdown started:', data);
@@ -405,28 +436,33 @@ function updateRoomsList(rooms) {
     console.log('Updating rooms list with:', rooms);
 
     const roomsWrapper = document.getElementById('rooms-wrapper');
-    roomsWrapper.innerHTML = '';
+    
+    // Очищаем только если мы действительно получили новый список
+    if (Array.isArray(rooms)) {
+        roomsWrapper.innerHTML = '';
 
-    if (!rooms || rooms.length === 0) {
-        const noRoomsElement = document.createElement('div');
-        noRoomsElement.className = 'no-rooms-message';
-        noRoomsElement.textContent = 'No rooms available. Create one!';
-        roomsWrapper.appendChild(noRoomsElement);
-        return;
-    }
-
-    rooms.forEach(room => {
-        if (room) {
-            appendRoomElement({
-                name: room.name,
-                numberOfUsers: room.numberOfUsers,
-                onJoin: () => {
-                    console.log('Joining room:', room.name);
-                    socket.emit('join_room', room.name);
-                }
-            });
+        if (rooms.length === 0) {
+            const noRoomsElement = document.createElement('div');
+            noRoomsElement.className = 'no-rooms-message';
+            noRoomsElement.textContent = 'No rooms available. Create one!';
+            roomsWrapper.appendChild(noRoomsElement);
+            return;
         }
-    });
+
+        rooms.forEach(room => {
+            if (room && room.name) {
+                appendRoomElement({
+                    name: room.name,
+                    numberOfUsers: room.numberOfUsers || 0,
+                    onJoin: () => {
+                        console.log('Joining room:', room.name);
+                        socket.emit('join_room', room.name);
+                    }
+                });
+            }
+        });
+    }
 }
+
 
 
